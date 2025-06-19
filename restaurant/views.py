@@ -14,17 +14,6 @@ from rest_framework import generics
 def index(request):
     return render(request, 'index.html', {})
 
-# Helper function to format reservation slot into time format
-def format_reservation_time(slot):
-    """ Helper function to format reservation slot time """
-    hour = slot
-    ampm = 'AM' if hour < 12 else 'PM'
-    if hour == 0:
-        hour = 12
-    elif hour > 12:
-        hour -= 12
-    return f'{hour} {ampm}'
-
 def home(request):
     return render(request, 'index.html')
 
@@ -47,19 +36,19 @@ def reservations(request):
         
         # Check if the reservation already exists
         exist = Booking.objects.filter(
-            reservation_date=data['reservation_date'],
-            reservation_slot=data['reservation_slot']
+            booking_date=data['booking_date'],
+            name=data['name']
         ).exists()
         
         if exist:
             # If the reservation exists, return an error response
-            return JsonResponse({'error': 'This time slot is already booked'}, status=400)
+            return JsonResponse({'error': 'This booking already exists'}, status=400)
 
         # If no existing booking, create a new booking
         booking = Booking(
-            first_name=data['first_name'],
-            reservation_date=data['reservation_date'],
-            reservation_slot=data['reservation_slot'],
+            name=data['name'],
+            booking_date=data['booking_date'],
+            no_of_guests=data.get('no_of_guests', 1),
         )
         booking.save()
 
@@ -69,63 +58,16 @@ def reservations(request):
     # Handle GET requests
     date = request.GET.get('date')
     if date:
-        bookings = Booking.objects.filter(reservation_date=date)
+        bookings = Booking.objects.filter(booking_date=date)
     else:
-        bookings = Booking.objects.all()    # Check if this is an AJAX request (from book.html)
+        bookings = Booking.objects.all()
     
+    # Check if this is an AJAX request (from book.html)
     if request.headers.get('X-Requested-With') == 'XMLHttpRequest' or 'bookings' in request.path:
-        # Return JSON data for AJAX requests (keep original numeric slots)
+        # Return JSON data for AJAX requests
         booking_json = serializers.serialize('json', bookings)
         return HttpResponse(booking_json, content_type='application/json')
     else:
-        # Format the reservation time for HTML template rendering
-        for booking in bookings:
-            booking.formatted_time = format_reservation_time(booking.reservation_slot)  # Adding formatted time
-        
-        # Pass the bookings to the 'bookings.html' template
-        context = {'bookings': bookings}
-        return render(request, 'bookings.html', context)
-
-    if request.method == 'POST':
-        # Parse the incoming JSON request
-        data = json.loads(request.body)
-        
-        # Check if the reservation already exists
-        exist = Booking.objects.filter(
-            reservation_date=data['reservation_date'],
-            reservation_slot=data['reservation_slot']
-        ).exists()
-        
-        if exist:
-            # If the reservation exists, return an error response
-            return JsonResponse({'error': 'This time slot is already booked'}, status=400)
-
-        # If no existing booking, create a new booking
-        booking = Booking(
-            first_name=data['first_name'],
-            reservation_date=data['reservation_date'],
-            reservation_slot=data['reservation_slot'],
-        )
-        booking.save()
-
-        # Return success response
-        return JsonResponse({'success': 'Reservation created successfully'}, status=201)
-    
-    # Handle GET requests
-    date = request.GET.get('date')
-    if date:
-        bookings = Booking.objects.filter(reservation_date=date)
-    else:
-        bookings = Booking.objects.all()    # Check if this is an AJAX request (from book.html)
-    if request.headers.get('X-Requested-With') == 'XMLHttpRequest' or 'bookings' in request.path:
-        # Return JSON data for AJAX requests (keep original numeric slots)
-        booking_json = serializers.serialize('json', bookings)
-        return HttpResponse(booking_json, content_type='application/json')
-    else:
-        # Format the reservation time for HTML template rendering
-        for booking in bookings:
-            booking.formatted_time = format_reservation_time(booking.reservation_slot)
-        
         # Pass the bookings to the 'bookings.html' template
         context = {'bookings': bookings}
         return render(request, 'bookings.html', context)
