@@ -11,6 +11,9 @@ from .serializers import BookingSerializer
 from rest_framework import generics
 
 
+def index(request):
+    return render(request, 'index.html', {})
+
 # Helper function to format reservation slot into time format
 def format_reservation_time(slot):
     """ Helper function to format reservation slot time """
