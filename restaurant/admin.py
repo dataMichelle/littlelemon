@@ -5,7 +5,7 @@ from .models import Menu, Booking
 
 @admin.register(Booking)
 class BookingAdmin(admin.ModelAdmin):
-    list_display = ('id', 'name', 'booking_date', 'no_of_guests')
+    list_display = ('id', 'name', 'no_of_guests', 'booking_date', 'booking_slots')
     list_filter = ('booking_date',)
     search_fields = ('name', 'booking_date')
     ordering = ('-booking_date',)

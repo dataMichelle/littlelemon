@@ -1,20 +1,26 @@
-from django.urls import path
+from django.urls import path, include
+from rest_framework.routers import DefaultRouter
 from . import views
 
+# Create router for ViewSets (User only now)
+router = DefaultRouter()
+router.register(r'api/users', views.UserViewSet)
+
 urlpatterns = [
-
-    path('', views.index, name='index'),  # Render index HTML page
-    path('', views.home, name="home"),
-    path('about/', views.about, name="about"),
-    path('book/', views.book, name="book"),
-    path('reservations/', views.reservations, name="reservations"),
-    path('menu/', views.menu, name="menu"),
-    path('menu_item/<int:pk>/', views.display_menu_item, name="menu_item"),  
+    # Web pages
+    path('', views.index, name='index'),  # Homepage
+    path('about/', views.about, name='about'),
+    path('book/', views.book, name='book'),
+    path('reservations/', views.reservations, name='reservations'),
+    path('bookings/', views.reservations, name='bookings'),
+    path('menu/', views.menu, name='menu'),  # Menu template view
+    path('menu_item/<int:pk>/', views.display_menu_item, name='menu_item'),
     
-    # Update this URL pattern
-    path('bookings/', views.reservations, name='bookings'),  # Render bookings HTML page
+    # API endpoints as per exercise instructions
+    path('menu/items/', views.MenuItemsView.as_view(), name='menu-items'),
+    path('menu/items/<int:pk>/', views.SingleMenuItemView.as_view(), name='menu-item-detail'),
 
-    # API endpoint to retrieve bookings in JSON format
-    path('api/bookings/', views.BookingList.as_view(), name='booking-list'),
-    path('api/bookings/<int:pk>/', views.BookingDetail.as_view(), name='booking-detail'),
+    
+    # Include router URLs for ViewSets
+    path('restaurant/booking/', include(router.urls)),
 ]
