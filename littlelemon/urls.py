@@ -1,14 +1,17 @@
 from django.contrib import admin
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
-from restaurant import views
+from LittleLemonAPI import views
 
-# Create router for BookingViewSet
 router = DefaultRouter()
-router.register(r'tables', views.BookingViewSet)
+router.register(r'users', views.UserViewSet)
+router.register(r'bookings', views.BookingViewSet)
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('', include('restaurant.urls')),  # Include restaurant URLs at root level
-    path('restaurant/booking/', include(router.urls)),
+    path('api/', include('LittleLemonAPI.urls')),
+    path('', include('restaurant.urls')),
+
+    path('auth/', include('djoser.urls')),  # Djoser routes for user management
+    path('auth/', include('djoser.urls.authtoken')),  # Djoser token auth routes
 ]

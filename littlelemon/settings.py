@@ -38,7 +38,11 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'rest_framework',
-    'restaurant'
+    'djoser',
+    'rest_framework.authtoken',
+    'restaurant',
+    'LittleLemonAPI',
+    
 ]
 
 MIDDLEWARE = [
@@ -136,5 +140,18 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 REST_FRAMEWORK = {
     'DEFAULT_RENDERER_CLASSES': [
         'rest_framework.renderers.JSONRenderer',
+        'rest_framework.renderers.BrowsableAPIRenderer',  # add this for browsable API
     ],
+    'DEFAULT_AUTHENTICATION_CLASSES': [
+        'rest_framework.authentication.TokenAuthentication',
+        'rest_framework.authentication.SessionAuthentication',  # useful for dev/admin login
+    ],
+    'DEFAULT_PERMISSION_CLASSES': [
+        'rest_framework.permissions.IsAuthenticated',  # enforce auth globally or customize in views
+    ],
+}
+
+# Djoser settings for user management
+DJOSER = {
+    'USER_ID_FIELD': 'username',
 }
